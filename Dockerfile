@@ -7,7 +7,7 @@ RUN apk add --no-cache postgresql-dev \
     # Limpa após a instalação para reduzir o tamanho da imagem
     && rm -rf /tmp/* /var/cache/apk/*
 
-WORKDIR /app/TrabalhoWEB
-COPY . /app/TrabalhoWEB
+WORKDIR /app/TrabalhoWEB/index.php
+COPY . /app/TrabalhoWEB/index.php
 EXPOSE 8000
 CMD ["php", "-S", "0.0.0.0:8000", "-t", "."]
