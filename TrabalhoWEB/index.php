@@ -9,7 +9,7 @@
 </head>
 <body class="body-p ">
         <form action="" method="post" class="form-container" id="form-login">
-            <h2 class="pb-3"">Entre Páginas</h2>
+            <h2 class="pb-3">Entre Páginas</h2>
             <div class="mb-3 ">
                 <label for="">Email</label>
                 <input type="email" class="form-control" id="email" name="email" required>
