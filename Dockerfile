@@ -1,6 +1,6 @@
-FROM php:8.2-cli-alpine
-WORKDIR /app
-RUN docker-php-ext-install pdo_pgsql pgsql
-COPY . .
-EXPOSE 8000
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "."]
+FROM php:8.2-apache-alpine
+RUN apk add --no-cache postgresql-dev build-base \
+    && rm -rf /var/cache/apk/*
+RUN docker-php-ext-install pdo pdo_pgsql
+COPY . /var/www/html/
+EXPOSE 80
