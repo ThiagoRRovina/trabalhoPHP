@@ -8,5 +8,5 @@ RUN apk add --no-cache postgresql-dev \
     && rm -rf /tmp/* /var/cache/apk/*
 WORKDIR /app
 COPY . .
-EXPOSE 9000
-CMD ["php-fpm"]
+EXPOSE 8000
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "."]
