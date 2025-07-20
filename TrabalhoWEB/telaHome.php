@@ -30,20 +30,20 @@
     </nav>
     <?php
     include_once 'conectaBanco.php';
-    $conn = conectaBanco(); // Esta linha foi adicionada/modificada
+    $pdo = conectaBanco();
     // Livro destaque
     $livroDestaque = null;
     $sqlLivro = "SELECT * FROM livros ORDER BY livro_id ASC LIMIT 1";
-    $resultLivro = pg_query($conn, $sqlLivro);
-    if ($resultLivro && pg_num_rows($resultLivro) > 0) {
-        $livroDestaque = pg_fetch_assoc($resultLivro);
+    $stmtLivro = $pdo->query($sqlLivro);
+    if ($stmtLivro && $row = $stmtLivro->fetch(PDO::FETCH_ASSOC)) {
+        $livroDestaque = $row;
     }
     // Disco destaque
     $discoDestaque = null;
     $sqlDisco = "SELECT * FROM discos ORDER BY disco_id ASC LIMIT 1";
-    $resultDisco = pg_query($conn, $sqlDisco);
-    if ($resultDisco && pg_num_rows($resultDisco) > 0) {
-        $discoDestaque = pg_fetch_assoc($resultDisco);
+    $stmtDisco = $pdo->query($sqlDisco);
+    if ($stmtDisco && $row = $stmtDisco->fetch(PDO::FETCH_ASSOC)) {
+        $discoDestaque = $row;
     }
     ?>
     <main class="container-fluid p-0">
