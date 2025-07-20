@@ -1,20 +1,62 @@
 <?php
     include_once 'conectaBanco.php';
+    $pdo = conectaBanco();
     $mensagem = '';
-    // Excluir livro
+
+    // Inicializa variáveis do formulário
+    $form_id = '';
+    $form_titulo = '';
+    $form_autor = '';
+    $form_paginas = '';
+    $form_editora = '';
+    $form_ano = '';
+    $form_data = '';
+    $form_preco = '';
+    $form_capa = 'placeholder-capa.jpg';
+
+    // Se for edição, busca os dados do livro
+    if (isset($_GET['id']) && $_GET['id'] !== '') {
+        $idEditar = $_GET['id'];
+        $sql = "SELECT * FROM livros WHERE livro_id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$idEditar]);
+        $livro = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($livro) {
+            $form_id = $livro['livro_id'];
+            $form_titulo = $livro['livro_titulo'];
+            $form_autor = $livro['livro_autor'];
+            $form_paginas = $livro['livro_paginas'];
+            $form_editora = $livro['livro_editora'];
+            $form_ano = $livro['livro_ano'];
+            $form_data = $livro['livro_data_cadastro'];
+            $form_preco = $livro['livro_preco'];
+            $form_capa = $livro['livro_capa'] ? 'capas/' . $livro['livro_capa'] : 'placeholder-capa.jpg';
+        }
+    }
+
     if (isset($_GET['excluir'])) {
         $idExcluir = $_GET['excluir'];
-        $sql = "DELETE FROM livros WHERE LIVRO_ID = $1";
-        $result = pg_query_params($conn, $sql, array($idExcluir));
+        $sql = "DELETE FROM livros WHERE LIVRO_ID = ?";
+        if (!isset($pdo)) {
+            if (isset($conn)) {
+                $pdo = $conn;
+            } elseif (isset($conexao)) {
+                $pdo = $conexao;
+            } else {
+                die('====Erro=====');
+            }
+        }
+        $stmt = $pdo->prepare($sql);
+        $result = $stmt->execute([$idExcluir]);
         if ($result) {
-            $mensagem = 'Livro excluído com sucesso!';
+            $mensagem = 'Livro excluído com sucesso!!';
             header('Location: livros.php');
             exit;
         } else {
-            $mensagem = 'Erro ao excluir livro.';
+            $mensagem = '-- Erro ao excluir livro --';
         }
     }
-    // Salvar ou editar livro
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = isset($_POST['id']) ? $_POST['id'] : '';
         $titulo = $_POST['titulo'];
@@ -25,7 +67,7 @@
         $data = $_POST['data'];
         $preco = $_POST['preco'];
 
-        // Upload da imagem
+
         if (isset($_FILES['capa']) && $_FILES['capa']['error'] === UPLOAD_ERR_OK) {
             $ext = pathinfo($_FILES['capa']['name'], PATHINFO_EXTENSION);
             $novoNome = uniqid() . '.' . $ext;
@@ -35,19 +77,29 @@
             $capa = 'placeholder-capa.jpg';
         }
 
+        if (!isset($pdo)) {
+            if (isset($conn)) {
+                $pdo = $conn;
+            } elseif (isset($conexao)) {
+                $pdo = $conexao;
+            } else {
+                die('Err0====');
+            }
+        }
+
         if ($id) {
-            // Editar
-            $sql = "UPDATE livros SET livro_titulo=$1, livro_autor=$2, livro_paginas=$3, livro_editora=$4, livro_ano=$5, livro_data_cadastro=$6, livro_preco=$7, livro_capa=$8 WHERE livro_id=$9";
 
+            $sql = "UPDATE livros SET livro_titulo=?, livro_autor=?, livro_paginas=?, livro_editora=?, livro_ano=?, livro_data_cadastro=?, livro_preco=?, livro_capa=? WHERE livro_id=?";
             $params = array($titulo, $autor, $paginas, $editora, $ano, $data, $preco, $capa, $id);
-            $result = pg_query_params($conn, $sql, $params);
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute($params);
             $mensagem = $result ? 'Livro editado com sucesso!' : 'Erro ao editar livro.';
-
         } else {
-            // Novo livro
-            $sql = "INSERT INTO livros (livro_titulo, livro_autor, livro_paginas, livro_editora, livro_ano, livro_data_cadastro, livro_preco, livro_capa) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)";
+
+            $sql = "INSERT INTO livros (livro_titulo, livro_autor, livro_paginas, livro_editora, livro_ano, livro_data_cadastro, livro_preco, livro_capa) VALUES (?,?,?,?,?,?,?,?)";
             $params = array($titulo, $autor, $paginas, $editora, $ano, $data, $preco, $capa);
-            $result = pg_query_params($conn, $sql, $params);
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute($params);
             $mensagem = $result ? 'Livro cadastrado com sucesso!' : 'Erro ao cadastrar livro.';
             header('Location: livros.php');
             exit;
@@ -90,54 +142,51 @@
 
     <div class="container mt-3 hero-section py-5 mb-4">
         <form action="cadastrarLivro.php" method="POST" enctype="multipart/form-data" id="formCadastroItem" class="p-4">
-     
-            <h2 id="formTitulo" class="mb-4">Cadastrar Livro</h2>
+            <h2 id="formTitulo" class="mb-4"><?php echo $form_id ? 'Editar Livro' : 'Cadastrar Livro'; ?></h2>
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <!-- Mensagem de status será exibida aqui se necessário -->
-                    <input type="hidden" name="id" id="inputId">
+                    <input type="hidden" name="id" id="inputId" value="<?php echo htmlspecialchars($form_id); ?>">
                     <div class="mb-3">
                         <label for="inputTitulo" class="form-label">Título</label>
-                        <input type="text" class="form-control" id="inputTitulo" name="titulo" required style="z-index:9999;position:relative;">
+                        <input type="text" class="form-control" id="inputTitulo" name="titulo" required style="z-index:9999;position:relative;" value="<?php echo htmlspecialchars($form_titulo); ?>">
                     </div>
                     <div class="mb-3">
                         <label for="inputAutor" class="form-label">Autor</label>
-                        <input type="text" class="form-control" id="inputAutor" name="autor" required style="z-index:9999;position:relative;">
+                        <input type="text" class="form-control" id="inputAutor" name="autor" required style="z-index:9999;position:relative;" value="<?php echo htmlspecialchars($form_autor); ?>">
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="inputData" class="form-label">Data de cadastro</label>
-                            <input type="date" class="form-control" id="inputData" name="data" required style="z-index:9999;position:relative;">
+                            <input type="date" class="form-control" id="inputData" name="data" required style="z-index:9999;position:relative;" value="<?php echo htmlspecialchars($form_data); ?>">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="inputPreco" class="form-label">Preço</label>
-                            <input type="text" step="0.01" class="form-control" id="inputPreco" name="preco" required style="z-index:9999;position:relative;">
+                            <input type="text" step="0.01" class="form-control" id="inputPreco" name="preco" required style="z-index:9999;position:relative;" value="<?php echo htmlspecialchars($form_preco); ?>">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="inputPaginas" class="form-label">Número de Páginas</label>
-                        <input type="text" class="form-control" id="inputPaginas" name="paginas" min="1" required style="z-index:9999;position:relative;">
+                        <input type="text" class="form-control" id="inputPaginas" name="paginas" min="1" required style="z-index:9999;position:relative;" value="<?php echo htmlspecialchars($form_paginas); ?>">
                     </div>
                     <div class="mb-3">
                         <label for="inputEditora" class="form-label">Editora</label>
-                        <input type="text" class="form-control" id="inputEditora" name="editora" required style="z-index:9999;position:relative;">
+                        <input type="text" class="form-control" id="inputEditora" name="editora" required style="z-index:9999;position:relative;" value="<?php echo htmlspecialchars($form_editora); ?>">
                     </div>
                     <div class="mb-3">
                         <label for="inputAno" class="form-label">Ano de Publicação</label>
-                        <input type="text" class="form-control" id="inputAno" name="ano" min="1000" max="9999" required style="z-index:9999;position:relative;">
+                        <input type="text" class="form-control" id="inputAno" name="ano" min="1000" max="9999" required style="z-index:9999;position:relative;" value="<?php echo htmlspecialchars($form_ano); ?>">
                     </div>
                 </div>
                 <div class="col-md-6 d-flex flex-column align-items-center justify-content-center">
                     <div class="text-center p-3"
                         style="background-color: #f8f9fa; border: 1px dashed #ced4da; border-radius: 5px; width: 100%; max-width: 250px;">
-                        <img id="previewCapa" src="placeholder-capa.jpg" alt="Pré-visualização da Capa"
+                        <img id="previewCapa" src="<?php echo htmlspecialchars($form_capa); ?>" alt="Pré-visualização da Capa"
                             class="img-fluid mb-3" style="max-height: 200px; object-fit: contain;">
                         <input type="file" id="inputCapa" name="capa" accept="image/*" class="d-none">
                         <button type="button" class="btn btn-secondary btn-sm" id="btnEscolherImagem"
                             style="z-index:9999;position:relative;">
                             <i class="bi bi-upload"></i> Escolher Imagem</button>
                     </div>
-                    
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-3 mt-4">
@@ -162,11 +211,11 @@
                 window.location.href = 'livros.php';
                 return;
             }
-        
+
             document.getElementById('nav-inicio').onclick = function () { window.location.href = 'telaHome.php'; };
             document.getElementById('nav-livros').onclick = function () { window.location.href = 'livros.php'; };
             document.getElementById('nav-discos').onclick = function () { window.location.href = 'discos.php'; };
-            
+
             const btnEscolherImagem = document.getElementById('btnEscolherImagem');
             const inputCapa = document.getElementById('inputCapa');
             const previewCapa = document.getElementById('previewCapa');

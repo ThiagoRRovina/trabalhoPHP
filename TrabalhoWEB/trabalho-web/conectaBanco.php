@@ -3,15 +3,15 @@ function conectaBanco() {
 
     $db_url = getenv('DATABASE_URL');
 
-  
+
     if (!$db_url) {
         $db_host = 'localhost';
-        $db_name = 'sebo';     
-        $db_user = 'postgres'; 
-        $db_password = '123';   
-        $db_port = '5432';
+        $db_name = 'postgres';
+        $db_user = 'postgres';
+        $db_password = '12345';
+        $db_port = '5433';
     } else {
-        
+
         $url_parts = parse_url($db_url);
         $db_host = $url_parts['host'];
         $db_port = $url_parts['port'];

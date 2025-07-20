@@ -14,11 +14,12 @@
 <body>
     <?php
     include_once 'conectaBanco.php';
+    $pdo = conectaBanco();
     $livros = [];
     $sql = "SELECT * FROM livros ORDER BY livro_titulo ASC";
-    $result = pg_query($conn, $sql);
-    if ($result) {
-        while ($row = pg_fetch_assoc($result)) {
+    $stmt = $pdo->query($sql);
+    if ($stmt) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $livros[] = $row;
         }
     }

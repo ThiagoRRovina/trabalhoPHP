@@ -1,11 +1,13 @@
 <?php
     include_once 'conectaBanco.php';
+    $pdo = conectaBanco();
     $mensagem = '';
     // Excluir disco
     if (isset($_GET['excluir'])) {
         $idExcluir = $_GET['excluir'];
-        $sql = "DELETE FROM discos WHERE disco_id = $1";
-        $result = pg_query_params($conn, $sql, array($idExcluir));
+        $sql = "DELETE FROM discos WHERE disco_id = ?";
+        $stmt = $pdo->prepare($sql);
+        $result = $stmt->execute([$idExcluir]);
         if ($result) {
             $mensagem = 'Disco excluído com sucesso!';
             header('Location: discos.php');
@@ -14,17 +16,18 @@
             $mensagem = 'Erro ao excluir disco.';
         }
     }
-    // Carregar dados do disco para edição
+
     $discoEdit = null;
     if (isset($_GET['id'])) {
         $idEdit = $_GET['id'];
-        $sql = "SELECT * FROM discos WHERE disco_id = $1";
-        $result = pg_query_params($conn, $sql, array($idEdit));
-        if ($result && pg_num_rows($result) > 0) {
-            $discoEdit = pg_fetch_assoc($result);
+        $sql = "SELECT * FROM discos WHERE disco_id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$idEdit]);
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $discoEdit = $row;
         }
     }
-    // Salvar ou editar disco
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = isset($_POST['id']) ? $_POST['id'] : '';
         $titulo = $_POST['titulo'];
@@ -35,7 +38,7 @@
         $data = $_POST['data'];
         $preco = $_POST['preco'];
 
-        // Upload da imagem
+
         if (isset($_FILES['capa']) && $_FILES['capa']['error'] === UPLOAD_ERR_OK) {
             $ext = pathinfo($_FILES['capa']['name'], PATHINFO_EXTENSION);
             $novoNome = uniqid() . '.' . $ext;
@@ -48,16 +51,18 @@
         }
 
         if ($id) {
-            // Editar
-            $sql = "UPDATE discos SET disco_titulo=$1, disco_artista=$2, disco_faixas=$3, disco_gravadora=$4, disco_ano=$5, disco_data_cadastro=$6, disco_preco=$7, disco_capa=$8 WHERE disco_id=$9";
+
+            $sql = "UPDATE discos SET disco_titulo=?, disco_artista=?, disco_faixas=?, disco_gravadora=?, disco_ano=?, disco_data_cadastro=?, disco_preco=?, disco_capa=? WHERE disco_id=?";
             $params = array($titulo, $artista, $faixas, $gravadora, $ano, $data, $preco, $capa, $id);
-            $result = pg_query_params($conn, $sql, $params);
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute($params);
             $mensagem = $result ? 'Disco editado com sucesso!' : 'Erro ao editar disco.';
         } else {
-            // Novo disco
-            $sql = "INSERT INTO discos (disco_titulo, disco_artista, disco_faixas, disco_gravadora, disco_ano, disco_data_cadastro, disco_preco, disco_capa) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)";
+
+            $sql = "INSERT INTO discos (disco_titulo, disco_artista, disco_faixas, disco_gravadora, disco_ano, disco_data_cadastro, disco_preco, disco_capa) VALUES (?,?,?,?,?,?,?,?)";
             $params = array($titulo, $artista, $faixas, $gravadora, $ano, $data, $preco, $capa);
-            $result = pg_query_params($conn, $sql, $params);
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute($params);
             $mensagem = $result ? 'Disco cadastrado com sucesso!' : 'Erro ao cadastrar disco.';
             header('Location: discos.php');
             exit;

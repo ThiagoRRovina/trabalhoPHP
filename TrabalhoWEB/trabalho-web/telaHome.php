@@ -4,14 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="telaHome.css">
+    <link rel="stylesheet" href="telaHomeStyle.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Orbitron:wght@400..900&display=swap"
-        rel="stylesheet">
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
 
     <title>Sebo Online</title>
 </head>
@@ -30,19 +29,20 @@
     </nav>
     <?php
     include_once 'conectaBanco.php';
+    $pdo = conectaBanco();
     // Livro destaque
     $livroDestaque = null;
     $sqlLivro = "SELECT * FROM livros ORDER BY livro_id ASC LIMIT 1";
-    $resultLivro = pg_query($conn, $sqlLivro);
-    if ($resultLivro && pg_num_rows($resultLivro) > 0) {
-        $livroDestaque = pg_fetch_assoc($resultLivro);
+    $stmtLivro = $pdo->query($sqlLivro);
+    if ($stmtLivro && $row = $stmtLivro->fetch(PDO::FETCH_ASSOC)) {
+        $livroDestaque = $row;
     }
     // Disco destaque
     $discoDestaque = null;
     $sqlDisco = "SELECT * FROM discos ORDER BY disco_id ASC LIMIT 1";
-    $resultDisco = pg_query($conn, $sqlDisco);
-    if ($resultDisco && pg_num_rows($resultDisco) > 0) {
-        $discoDestaque = pg_fetch_assoc($resultDisco);
+    $stmtDisco = $pdo->query($sqlDisco);
+    if ($stmtDisco && $row = $stmtDisco->fetch(PDO::FETCH_ASSOC)) {
+        $discoDestaque = $row;
     }
     ?>
     <main class="container-fluid p-0">
