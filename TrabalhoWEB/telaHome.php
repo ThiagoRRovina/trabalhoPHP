@@ -30,6 +30,7 @@
     </nav>
     <?php
     include_once 'conectaBanco.php';
+    $conn = conectaBanco(); // Esta linha foi adicionada/modificada
     // Livro destaque
     $livroDestaque = null;
     $sqlLivro = "SELECT * FROM livros ORDER BY livro_id ASC LIMIT 1";
