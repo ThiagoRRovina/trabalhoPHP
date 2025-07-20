@@ -10,11 +10,12 @@ function conectaBanco() {
         $db_port = '5432';
     } else {
         $url_parts = parse_url($db_url);
-        $db_host = $url_parts['host'];
-        $db_port = $url_parts['port'];
-        $db_user = $url_parts['user'];
-        $db_password = $url_parts['pass'];
-        $db_name = ltrim($url_parts['path'], '/');
+
+        $db_host = $url_parts['host'] ?? 'localhost';
+        $db_port = $url_parts['port'] ?? '5432';
+        $db_user = $url_parts['user'] ?? 'postgres';
+        $db_password = $url_parts['pass'] ?? '';
+        $db_name = ltrim($url_parts['path'] ?? '', '/');
     }
 
     $conn_string = "host=$db_host port=$db_port dbname=$db_name user=$db_user password=$db_password";
