@@ -3,18 +3,10 @@
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
-
     if ($email === 'sebo@gmail.com' && $senha === '123') {
-        // Redireciona para telaHome.php
         header('Location: telaHome.php');
-        exit; // É crucial usar exit após um redirecionamento para garantir que nenhum código adicional seja executado.
+        exit;
     } else {
-        // Se as credenciais estiverem incorretas, definimos uma variável de sessão
-        // ou uma variável para ser usada no HTML para exibir a mensagem de erro.
-        // Não podemos usar alert() diretamente aqui se já enviamos cabeçalhos,
-        // mas como o HTML ainda não foi enviado, podemos usar um script.
-        // No entanto, para evitar o erro de cabeçalho, é melhor evitar echo de script aqui.
-        // Vamos usar uma variável para exibir a mensagem no HTML.
         $login_error = true;
     }
 }
