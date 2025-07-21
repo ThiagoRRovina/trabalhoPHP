@@ -1,5 +1,16 @@
-
-
+<?php 
+header('Content-Type: text/html; charset=utf-8'); 
+include_once 'conectaBanco.php';
+$pdo = conectaBanco();
+$livros = [];
+$sql = "SELECT * FROM livros ORDER BY livro_titulo ASC";
+$stmt = $pdo->query($sql);
+if ($stmt) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $livros[] = $row;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -12,18 +23,6 @@
 </head>
 
 <body>
-    <?php
-    include_once 'conectaBanco.php';
-    $pdo = conectaBanco();
-    $livros = [];
-    $sql = "SELECT * FROM livros ORDER BY livro_titulo ASC";
-    $stmt = $pdo->query($sql);
-    if ($stmt) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $livros[] = $row;
-        }
-    }
-    ?>
     <nav class="navbar-custom px-3 py-3 d-flex flex-column" style="background-color: rgb(2, 153, 133);">
         <div class="w-100 d-flex justify-content-between align-items-center mb-2">
             <h1 class="titulo-navbar mb-0" style="margin-left: 15px; font-size: 62px; color: aliceblue;">Entre Páginas</h1>
