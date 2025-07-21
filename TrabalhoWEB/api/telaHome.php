@@ -1,3 +1,22 @@
+<?php 
+header('Content-Type: text/html; charset=utf-8'); 
+include_once 'conectaBanco.php';
+$pdo = conectaBanco();
+// Livro destaque
+$livroDestaque = null;
+$sqlLivro = "SELECT * FROM livros ORDER BY livro_id ASC LIMIT 1";
+$stmtLivro = $pdo->query($sqlLivro);
+if ($stmtLivro && $row = $stmtLivro->fetch(PDO::FETCH_ASSOC)) {
+    $livroDestaque = $row;
+}
+// Disco destaque
+$discoDestaque = null;
+$sqlDisco = "SELECT * FROM discos ORDER BY disco_id ASC LIMIT 1";
+$stmtDisco = $pdo->query($sqlDisco);
+if ($stmtDisco && $row = $stmtDisco->fetch(PDO::FETCH_ASSOC)) {
+    $discoDestaque = $row;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -27,24 +46,6 @@
             <span class="nav-item" id="nav-discos">Discos</span>
         </div>
     </nav>
-    <?php
-    include_once 'conectaBanco.php';
-    $pdo = conectaBanco();
-    // Livro destaque
-    $livroDestaque = null;
-    $sqlLivro = "SELECT * FROM livros ORDER BY livro_id ASC LIMIT 1";
-    $stmtLivro = $pdo->query($sqlLivro);
-    if ($stmtLivro && $row = $stmtLivro->fetch(PDO::FETCH_ASSOC)) {
-        $livroDestaque = $row;
-    }
-    // Disco destaque
-    $discoDestaque = null;
-    $sqlDisco = "SELECT * FROM discos ORDER BY disco_id ASC LIMIT 1";
-    $stmtDisco = $pdo->query($sqlDisco);
-    if ($stmtDisco && $row = $stmtDisco->fetch(PDO::FETCH_ASSOC)) {
-        $discoDestaque = $row;
-    }
-    ?>
     <main class="container-fluid p-0">
         <section class="hero-section text-center py-5 mb-4">
             <h1>Bem-vindo ao Entre Paginas!</h1>
