@@ -1,5 +1,4 @@
 <?php
-// Este bloco PHP DEVE estar no topo do arquivo, antes de qualquer HTML ou espaços.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
