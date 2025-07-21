@@ -1,14 +1,17 @@
 FROM php:8.2-fpm-alpine
 
 # 1. Atualiza os índices dos pacotes e instala pacotes de sistema
-# Removido postgresql-dev, pois estamos instalando php82-pdo_pgsql diretamente
+# Inclui postgresql-dev (necessário para compilar pdo_pgsql) e postgresql-client
 RUN apk update && apk add --no-cache \
     nginx \
+    postgresql-dev \ 
     postgresql-client \
-    php82-pdo_pgsql \ 
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/cache/apk/* 
 
-# As linhas 'docker-php-ext-install' e 'docker-php-ext-enable' foram removidas anteriormente, mantenha-as assim.
+# 2. Instala e habilita a extensão PDO para PostgreSQL usando a ferramenta oficial
+# (Isto deve ser feito DEPOIS que as dependências de sistema como postgresql-dev forem instaladas)
+RUN docker-php-ext-install pdo_pgsql \
+    && docker-php-ext-enable pdo_pgsql
 
 # Remove o arquivo de configuração padrão do Nginx (se existir)
 RUN rm -f /etc/nginx/nginx.conf || true
