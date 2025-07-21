@@ -1,22 +1,15 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.2-fpm
 
-RUN apk update && apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     nginx \
-    postgresql-dev \
     postgresql-client \
-    && rm -rf /var/cache/apk/*
+    php-pgsql \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install pdo_pgsql
+RUN rm -f /etc/nginx/sites-enabled/default
 
-RUN echo "extension=pdo_pgsql.so" > /usr/local/etc/php/conf.d/docker-php-ext-pdo_pgsql.ini
-
-RUN php -m | grep pdo_pgsql
-
-RUN rm -f /etc/nginx/nginx.conf || true
-
-RUN apk add --no-cache ca-certificates && update-ca-certificates
-
-COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./nginx.conf /etc/nginx/sites-available/default.conf
+RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf
 
 WORKDIR /var/www/html
 
@@ -25,4 +18,4 @@ COPY ./TrabalhoWEB/capas/ /var/www/html/capas/
 
 EXPOSE 80
 
-CMD php-fpm -D && nginx -g "daemon off;"
+CMD service php8.2-fpm start && nginx -g "daemon off;"
