@@ -6,7 +6,6 @@ RUN apk add --no-cache \
     && docker-php-ext-install pdo_pgsql \
     && docker-php-ext-enable pdo_pgsql
 
-RUN rm /etc/nginx/conf.d/default.conf
 
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
