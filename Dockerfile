@@ -3,8 +3,11 @@ FROM php:8.2-fpm
 RUN apt-get update && apt-get install -y \
     nginx \
     postgresql-client \
-    php-pgsql \
+    postgresql-dev \
     && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-install pdo_pgsql \
+    && docker-php-ext-enable pdo_pgsql
 
 RUN rm -f /etc/nginx/sites-enabled/default
 
