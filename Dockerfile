@@ -3,11 +3,12 @@ FROM php:8.2-fpm-alpine
 RUN apk add --no-cache \
     nginx \
     postgresql-dev \
+    postgresql-client \
     && docker-php-ext-install pdo_pgsql \
     && docker-php-ext-enable pdo_pgsql
 
 
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx/nginx.conf 
 
 WORKDIR /var/www/html
 
