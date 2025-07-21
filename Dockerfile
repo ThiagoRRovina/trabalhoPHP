@@ -14,6 +14,8 @@ RUN php -m | grep pdo_pgsql
 
 RUN rm -f /etc/nginx/nginx.conf || true
 
+RUN apk add --no-cache ca-certificates && update-ca-certificates
+
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
 WORKDIR /var/www/html
