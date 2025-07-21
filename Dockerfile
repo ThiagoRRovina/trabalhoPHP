@@ -3,7 +3,7 @@ FROM php:8.2-fpm
 RUN apt-get update && apt-get install -y \
     nginx \
     postgresql-client \
-    libpq-dev \ 
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install pdo_pgsql \
@@ -21,4 +21,4 @@ COPY ./TrabalhoWEB/capas/ /var/www/html/capas/
 
 EXPOSE 80
 
-CMD service php8.2-fpm start && nginx -g "daemon off;"
+CMD php-fpm -D && nginx -g "daemon off;"
